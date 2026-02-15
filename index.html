@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scribble Game: Aligned Gallery</title>
+    <style>
+        :root {
+            --accent: #3b82f6;
+            --bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { color: #1e293b; margin-bottom: 8px; }
+        p { color: #64748b; margin-bottom: 40px; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 40px;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .comparison-card {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        .comparison-card img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Keeps aspect ratio of your drawings */
+            pointer-events: none;
+        }
+
+        .img-after {
+            clip-path: inset(0 0 0 50%);
+            background: white;
+        }
+
+        .slider-control {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            appearance: none;
+            background: transparent;
+            outline: none;
+            z-index: 20;
+            cursor: ew-resize;
+            margin: 0;
+        }
+
+        .divider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: white;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 50%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m18 8 4 4-4 4M6 8l-4 4 4 4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .badge {
+            position: absolute;
+            top: 15px;
+            padding: 4px 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-radius: 4px;
+            z-index: 5;
+            letter-spacing: 0.05em;
+        }
+        .badge-before { left: 15px; }
+        .badge-after { right: 15px; }
+    </style>
+</head>
+<body>
+
+    <h1>The Scribble Game</h1>
+    <p>Slide to reveal the transformation</p>
+
+    <div class="gallery-grid" id="gallery"></div>
+
+    <script>
+        // CONFIGURATION: Set the range of your photo numbers here
+        const startNum = 1;
+        const endNum = 10; // Change this to your total number of pairs
+
+        const gallery = document.getElementById('gallery');
+
+        for (let i = startNum; i <= endNum; i++) {
+            // Formats number to 2 digits (e.g., 1 -> 01)
+            const id = i.toString().padStart(2, '0');
+
+            const card = document.createElement('div');
+            card.className = 'comparison-card';
+
+            card.innerHTML = `
+                <div class="badge badge-before">Scribble</div>
+                <div class="badge badge-after">Final Art</div>
+
+                <img src="before_${id}.jpg" alt="Scribble ${id}">
+
+                <img src="aligned_results/after_${id}.jpg"
+                     class="img-after"
+                     id="after-${id}"
+                     alt="Aligned Art ${id}">
+
+                <div class="divider" id="line-${id}"></div>
+
+                <input type="range" min="0" max="100" value="50"
+                       class="slider-control"
+                       oninput="updateReveal(this, '${id}')">
+            `;
+
+            gallery.appendChild(card);
+        }
+
+        function updateReveal(slider, id) {
+            const percent = slider.value;
+            document.getElementById(`after-${id}`).style.clipPath = `inset(0 0 0 ${percent}%)`;
+            document.getElementById(`line-${id}`).style.left = `${percent}%`;
+        }
+    </script>
+</body>
+</html>
